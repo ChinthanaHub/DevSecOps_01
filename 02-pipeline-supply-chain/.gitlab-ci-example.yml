@@ -1,0 +1,135 @@
+# Illustrative shift-left pipeline — see pipeline-design.md for the reasoning behind every gate.
+# Designed for a self-managed GitLab instance with group + project runners (matches the current estate).
+
+stages:
+  - secrets-scan
+  - iac-scan
+  - supply-chain-scan
+  - policy-check
+  - plan
+  - approval
+  - apply
+
+variables:
+  WORKLOAD_TIER: "B"          # Overridden per-project: A | B | C, see pipeline-design.md tiering model
+  TF_ROOT: "${CI_PROJECT_DIR}"
+
+# ---------------------------------------------------------------------------
+# 1. Secrets scan — hard-fail always, every tier. No exception waives a live credential.
+# ---------------------------------------------------------------------------
+secrets:gitleaks:
+  stage: secrets-scan
+  image: zricethezav/gitleaks:latest
+  script:
+    - gitleaks detect --source . --redact --exit-code 1
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# ---------------------------------------------------------------------------
+# 2. IaC misconfiguration — Checkov as primary, tfsec as a cross-check.
+#    Critical severity hard-fails on every tier; High/Medium behaviour depends on tier.
+# ---------------------------------------------------------------------------
+iac:checkov:
+  stage: iac-scan
+  image: bridgecrew/checkov:3.3.6
+  script:
+    - checkov -d ${TF_ROOT} --compact --output json --output-file-path checkov-results.json
+    - |
+      # Hard-fail only on Critical-mapped checks (see severity-methodology.md rating factors);
+      # everything else is written to the artefact for the findings backlog, not blocked here.
+      python3 ci/enforce_severity.py --input checkov-results.json --tier "$WORKLOAD_TIER" --hard-fail-on critical
+  artifacts:
+    paths:
+      - checkov-results.json
+    when: always
+  allow_failure: false
+
+iac:tfsec-crosscheck:
+  stage: iac-scan
+  image: aquasec/tfsec:latest
+  script:
+    - tfsec ${TF_ROOT} --format json --out tfsec-results.json
+  artifacts:
+    paths:
+      - tfsec-results.json
+    when: always
+  allow_failure: true   # soft-fail: cross-check only, Checkov is the enforced source of truth
+
+# ---------------------------------------------------------------------------
+# 3. Software supply chain — Trivy for dependency/container CVEs + SBOM generation.
+# ---------------------------------------------------------------------------
+supply-chain:trivy:
+  stage: supply-chain-scan
+  image: aquasec/trivy:latest
+  script:
+    - trivy fs --format cyclonedx --output sbom.cdx.json .
+    - trivy fs --severity CRITICAL,HIGH --exit-code 1 --ignore-unfixed .
+  artifacts:
+    paths:
+      - sbom.cdx.json
+    when: always
+  allow_failure: false   # Critical/High with an available fix hard-fails; unfixed CVEs are tracked (--ignore-unfixed), not blocked
+
+# ---------------------------------------------------------------------------
+# 4. Policy-as-code — org-specific rules expressed once, evaluated identically across providers.
+# ---------------------------------------------------------------------------
+policy:opa-conftest:
+  stage: policy-check
+  image: openpolicyagent/conftest:latest
+  script:
+    - conftest test --policy ci/policy/ ${TF_ROOT} --output json > conftest-results.json
+  artifacts:
+    paths:
+      - conftest-results.json
+    when: always
+  allow_failure: false
+
+# ---------------------------------------------------------------------------
+# 5. Plan — only runs once every scan gate above has produced a result.
+# ---------------------------------------------------------------------------
+plan:terraform:
+  stage: plan
+  image: hashicorp/terraform:1.9
+  script:
+    - terraform -chdir=${TF_ROOT} init -backend=true
+    - terraform -chdir=${TF_ROOT} validate
+    - terraform -chdir=${TF_ROOT} plan -out=tfplan
+  artifacts:
+    paths:
+      - "${TF_ROOT}/tfplan"
+  needs:
+    - iac:checkov
+    - supply-chain:trivy
+    - policy:opa-conftest
+
+# ---------------------------------------------------------------------------
+# 6. Protected-environment approval — human security sign-off before production apply.
+#    Only runs for Tier A/B; Tier C (COTS/legacy exceptions) still requires it for go-live,
+#    with the exception list from Module 8 attached as evidence in the approval, not silently passed.
+# ---------------------------------------------------------------------------
+security-signoff:
+  stage: approval
+  image: alpine:latest
+  script:
+    - echo "Manual gate — requires a named approver from the security review group before apply proceeds."
+  environment:
+    name: production
+    action: prepare
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+  allow_failure: false
+
+apply:terraform:
+  stage: apply
+  image: hashicorp/terraform:1.9
+  script:
+    - terraform -chdir=${TF_ROOT} apply -auto-approve tfplan
+  environment:
+    name: production
+  needs:
+    - plan:terraform
+    - security-signoff
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
