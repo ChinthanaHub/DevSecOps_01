@@ -82,9 +82,24 @@ its place**:
 
 ## Tooling used
 
-Checkov 3.3.6, tfsec (latest), Gitleaks 8.21.2 — run directly against the cloned reference repository; exact commands
-and version output are cited alongside the findings they produced in
-[01-findings/findings-register.md](01-findings/findings-register.md).
+Every tool below was actually installed and run against the cloned `terragoat` reference repository in this review —
+none of this is illustrative. Where a tool is named in a design module but wasn't executed in this pass, that's
+called out explicitly rather than implied.
+
+| Tool | Version | Installed as | What it was run against | What it actually found / produced |
+|---|---|---|---|---|
+| **Checkov** | 3.3.6 | `pip install checkov` | `checkov -d . --compact --output json` against the full terragoat clone (all three providers' Terraform, plus its Dockerfile and GitHub Actions workflows) | Primary source for this review: 477 failed checks (467 Terraform, 5 secrets, 2 Dockerfile, 3 GitHub Actions). Almost every row in [01-findings/findings-register.md](01-findings/findings-register.md) cites a specific Checkov check ID (e.g. `CKV_AWS_16`, `CKV_AZURE_59`, `CKV_GCP_11`). Its built-in secrets sub-scanner is also what surfaced the hardcoded AWS access keys (`CKV_SECRET_2`) and the Azure high-entropy credential (`CKV_SECRET_6`) — a separate check from Gitleaks, below. |
+| **tfsec** (aquasecurity) | latest | Downloaded as a static Windows binary (`tfsec-windows-amd64.exe`), no package manager needed | `tfsec . --format json` against the same clone | Used as a **cross-check**, not the primary source — confirms Checkov's findings aren't a single-tool artefact. Referenced in [02-pipeline-supply-chain/.gitlab-ci-example.yml](02-pipeline-supply-chain/.gitlab-ci-example.yml) as a secondary, soft-fail gate that runs alongside Checkov rather than replacing it. |
+| **Gitleaks** | 8.21.2 | Downloaded as a static Windows binary | `gitleaks detect --source . --no-git -f json` against the same clone | A second, purpose-built secrets scanner independent of Checkov's own secrets check — this duplication is deliberate, matching Module 2's "named tools at each gate" design, where Gitleaks is the dedicated hard-fail secrets stage and Checkov's secrets check is a belt-and-braces cross-check, not the other way around. |
+| **git** | — | Already installed | Cloned `bridgecrewio/terragoat` locally to `reference-repos/terragoat/` for scanning; used to build this submission repository itself, one commit per module | Provided the actual file:line citations used throughout the findings register, and the commit history required by Section 4.3's commit hygiene requirement. |
+
+**Named in the pipeline/compliance design, but not executed against terragoat in this review** — this environment
+has no Docker runtime available, and terragoat's Terraform-only content doesn't produce application dependencies for
+an SCA tool to meaningfully scan, so running these here would have been for show rather than signal:
+
+- **Trivy** — specified in [02-pipeline-supply-chain/pipeline-design.md](02-pipeline-supply-chain/pipeline-design.md) as the SCA/SBOM-generation gate; its `.gitlab-ci-example.yml` job is written out in full but wasn't run standalone here.
+- **OPA / Conftest** — specified as the policy-as-code layer in Module 2 and given a worked, hand-written Rego policy in [09-compliance/compliance-mapping.md](09-compliance/compliance-mapping.md) showing one rule evaluated identically across AWS/Azure/GCP resource types — written and reasoned through, not executed against a live `conftest test` run.
+- **Terraform CLI** (v1.15.1, already installed) — available in this environment but not run (`validate`/`plan`) against terragoat in this pass; the review stayed at the static-analysis layer per the assessment's "no access to a real environment" constraint.
 
 ## Commit hygiene
 
