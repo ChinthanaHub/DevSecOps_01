@@ -78,7 +78,7 @@ its place**:
 | [09-compliance/](09-compliance/) | 10 — Compliance mapping | Complete |
 | [10-architecture/](10-architecture/) | 11, 12 — HLD/LLD diagrams + narrative | Complete — [hld-diagram.drawio](10-architecture/hld-diagram.drawio), [lld-diagram.drawio](10-architecture/lld-diagram.drawio), [architecture-narrative.md](10-architecture/architecture-narrative.md) |
 | [11-resilience-dr/](11-resilience-dr/) | 13 — Resilience & DR | Complete |
-| [12-presentation/](12-presentation/) | Final presentation deck | **Pending** — to follow separately |
+| [12-presentation/](12-presentation/) | Final presentation deck | **Content drafted** — [slide-content.md](12-presentation/slide-content.md) has all 14 slides written; `slides.pdf` itself still to be built in slide software and exported once the Module 11/12 diagrams land |
 
 ## Tooling used
 
