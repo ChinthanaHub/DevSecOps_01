@@ -9,10 +9,37 @@ stages:
   - plan
   - approval
   - apply
+  - post-pipeline
+
+default:
+  tags:
+    - group-managed          # Module 2: ephemeral, group-managed runners only — no project-level runner builds a release artefact
 
 variables:
   WORKLOAD_TIER: "B"          # Overridden per-project: A | B | C, see pipeline-design.md tiering model
   TF_ROOT: "${CI_PROJECT_DIR}"
+  AWS_ROLE_ARN: "arn:aws:iam::ACCOUNT_ID:role/${CI_PROJECT_NAME}-ci-pipeline-role"  # per-workload aws_iam_role.ci_pipeline, tag-scoped (Module 3 / iam-scoped-policy.tf)
+
+# ---------------------------------------------------------------------------
+# OIDC federation — replaces the wildcard-permission static access key finding (F-11/F-18) directly.
+# GitLab's native ID token is exchanged for a short-lived AWS credential via
+# sts:AssumeRoleWithWebIdentity, scoped to this project/protected-branch's `sub` claim
+# (see the assume_role_policy Condition in ../07-remediation/fixed-terraform/iam-scoped-policy.tf).
+# No AWS credential is ever stored as a CI/CD variable; nothing here outlives the job.
+# ---------------------------------------------------------------------------
+id_tokens:
+  AWS_ID_TOKEN:
+    aud: https://gitlab.example-gov-programme.internal
+
+.federated_aws_auth: &federated_aws_auth |
+  CREDS=$(aws sts assume-role-with-web-identity \
+    --role-arn "${AWS_ROLE_ARN}" \
+    --role-session-name "gitlab-${CI_PIPELINE_ID}" \
+    --web-identity-token "${AWS_ID_TOKEN}" \
+    --duration-seconds 900 --output json)
+  export AWS_ACCESS_KEY_ID=$(echo "$CREDS" | jq -r .Credentials.AccessKeyId)
+  export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | jq -r .Credentials.SecretAccessKey)
+  export AWS_SESSION_TOKEN=$(echo "$CREDS" | jq -r .Credentials.SessionToken)
 
 # ---------------------------------------------------------------------------
 # 1. Secrets scan — hard-fail always, every tier. No exception waives a live credential.
@@ -91,6 +118,8 @@ policy:opa-conftest:
 plan:terraform:
   stage: plan
   image: hashicorp/terraform:1.9
+  before_script:
+    - *federated_aws_auth
   script:
     - terraform -chdir=${TF_ROOT} init -backend=true
     - terraform -chdir=${TF_ROOT} validate
@@ -124,6 +153,8 @@ security-signoff:
 apply:terraform:
   stage: apply
   image: hashicorp/terraform:1.9
+  before_script:
+    - *federated_aws_auth
   script:
     - terraform -chdir=${TF_ROOT} apply -auto-approve tfplan
   environment:
@@ -133,3 +164,29 @@ apply:terraform:
     - security-signoff
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# ---------------------------------------------------------------------------
+# Post-pipeline — feed scan results + SBOM diffs into the same findings register schema as
+# Module 1, tagged source: pipeline, so supply-chain/IaC risk isn't tracked in a separate
+# spreadsheet from the manual review findings. Runs even when an earlier gate soft-failed,
+# so warn-only findings still reach the backlog (see "Hard-fail vs soft-fail" in pipeline-design.md).
+# ---------------------------------------------------------------------------
+post-pipeline:publish-findings:
+  stage: post-pipeline
+  image: alpine:latest
+  rules:
+    - when: always
+  needs:
+    - job: iac:checkov
+      artifacts: true
+    - job: iac:tfsec-crosscheck
+      artifacts: true
+    - job: supply-chain:trivy
+      artifacts: true
+    - job: policy:opa-conftest
+      artifacts: true
+      optional: true
+  script:
+    - echo "Publishing checkov-results.json, tfsec-results.json, sbom.cdx.json, conftest-results.json to the findings register (source: pipeline) and SIEM ingestion (06-detection-ir/monitoring-ir-plan.md)"
+    # In a real environment this posts to the same schema/endpoint 01-findings/findings-register.md and the
+    # SIEM both read from — left as a described integration point rather than a fake API call here.
