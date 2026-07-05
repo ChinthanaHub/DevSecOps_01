@@ -1,0 +1,326 @@
+<mxfile host="app.diagrams.net" agent="Claude Code" version="24.0.0">
+  <diagram name="HLD - Target State Architecture" id="hld-target-state">
+    <mxGraphModel dx="1800" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="n_title" value="Target-State High-Level Design &#8212; Multi-Cloud Platform Security &amp; Compliance (Module 11 HLD)" style="text;html=1;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="20" width="1200" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- External actors -->
+        <mxCell id="n_dev" value="Developer / Engineer&lt;br&gt;(workstation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_internet" value="Public Internet / End Users" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="80" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gov" value="Governance &amp; On-Call Stakeholders&lt;br&gt;(ITSO-equivalent)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1500" y="80" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_legend" value="Legend:&lt;br&gt;&#8212; solid = primary control / data flow&lt;br&gt;&#8231;&#8231;&#8231; dashed = exception, federated-token,&lt;br&gt;or continuous-monitoring flow" style="text;html=1;align=left;verticalAlign=top;fontSize=10;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="80" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- CI/CD Trust Boundary -->
+        <mxCell id="b_ci" value="CI/CD Trust Boundary (self-managed GitLab)" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fillColor=none;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;fontColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="20" y="180" width="580" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="n_git" value="Git Repository (source control)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="230" width="520" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_g1" value="1  Gitleaks &#8212; full-history secrets scan (hard-fail on match)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="50" y="285" width="520" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="n_g2" value="2  Checkov (primary) + tfsec (secondary) &#8212; IaC misconfig scan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="50" y="322" width="520" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="n_g3" value="3  Trivy &#8212; SCA / container CVEs / SBOM (CycloneDX)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="50" y="359" width="520" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="n_g4" value="4  OPA / Conftest &#8212; org policy-as-code gate" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="50" y="396" width="520" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="n_g5" value="5  terraform validate + plan" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="433" width="250" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_g6" value="6  Protected-environment approval&lt;br&gt;(human security sign-off)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="320" y="433" width="250" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_ci_note" value="Ephemeral, group-managed runners only &#8212; no project-level runner builds a release artefact" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=10;fontStyle=2;fontColor=#666666;align=left;" vertex="1" parent="1">
+          <mxGeometry x="50" y="488" width="520" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Identity & Access Governance Boundary -->
+        <mxCell id="b_id" value="Identity &amp; Access Governance Boundary" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fillColor=none;strokeColor=#9673a6;fontSize=14;fontStyle=1;fontColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="180" width="340" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="n_idp" value="OIDC Identity Provider / Federation Broker&lt;br&gt;(trusts GitLab's OIDC issuer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="665" y="235" width="290" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="n_jit" value="JIT Elevation Workflow&lt;br&gt;time-bound (4h default / 8h cap), approval-gated" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="665" y="320" width="290" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="n_bg" value="Break-glass Access&lt;br&gt;disabled by default, per provider, hardware-token / Conditional-Access gated" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="665" y="405" width="290" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="n_id_note" value="Standing human access = read-only, everywhere" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=10;fontStyle=2;fontColor=#666666;align=left;" vertex="1" parent="1">
+          <mxGeometry x="665" y="490" width="290" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="n_exception_note" value="JIT elevation &amp; break-glass (left) can reach any landing zone's Management/CI tier directly &#8212; time-bound, individually logged; not drawn as separate arrows below for clarity" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;fontStyle=2;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="20" y="615" width="1720" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- AWS Landing Zone -->
+        <mxCell id="b_aws" value="AWS Landing Zone" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fillColor=none;strokeColor=#d79b00;fontSize=14;fontStyle=1;fontColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="20" y="650" width="560" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_edge" value="Edge Tier &#8212; ALB + WAF/Shield&lt;br&gt;(only public listener)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="705" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_app" value="Application Tier &#8212; EC2 app servers&lt;br&gt;(no public IP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="775" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_data" value="Data Tier &#8212; RDS, S3&lt;br&gt;(no public IP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="845" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_kms" value="AWS KMS&lt;br&gt;(CMK per workload)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="390" y="845" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_mgmt" value="Management/CI Tier &#8212; runner + IAM OIDC role&lt;br&gt;(tag-scoped, no wildcard actions)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="915" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_hub" value="Hub: Transit Gateway (spokes never peer directly)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="50" y="985" width="500" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_aws_tel" value="Telemetry: CloudTrail, VPC Flow Logs, GuardDuty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1045" width="500" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Azure Landing Zone -->
+        <mxCell id="b_azure" value="Azure Landing Zone" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fillColor=none;strokeColor=#0078d4;fontSize=14;fontStyle=1;fontColor=#0078d4;" vertex="1" parent="1">
+          <mxGeometry x="600" y="650" width="560" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_edge" value="Edge Tier &#8212; App Gateway/Front Door + WAF&lt;br&gt;(only public listener)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="705" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_app" value="Application Tier &#8212; VM / App Service&lt;br&gt;(no public IP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="775" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_data" value="Data Tier &#8212; Azure SQL, Storage&lt;br&gt;(no public IP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="845" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_kv" value="Azure Key Vault&lt;br&gt;(CMK per workload)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="970" y="845" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_mgmt" value="Management/CI Tier &#8212; runner + Workload Identity Federation&lt;br&gt;(resource-group + tag-scoped role)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="915" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_hub" value="Hub: Virtual WAN / vNet peering hub" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="630" y="985" width="500" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_az_tel" value="Telemetry: Activity Log, NSG Flow Logs, Defender for Cloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cce5ff;strokeColor=#0078d4;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="630" y="1045" width="500" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- GCP Landing Zone -->
+        <mxCell id="b_gcp" value="GCP Landing Zone" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fillColor=none;strokeColor=#34a853;fontSize=14;fontStyle=1;fontColor=#34a853;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="650" width="560" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_edge" value="Edge Tier &#8212; Cloud Load Balancing + Cloud Armor&lt;br&gt;(only public listener)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="705" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_app" value="Application Tier &#8212; Compute Engine / GKE&lt;br&gt;(no public IP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="775" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_data" value="Data Tier &#8212; Cloud SQL, BigQuery, Storage&lt;br&gt;(no public IP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="845" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_kms" value="Cloud KMS&lt;br&gt;(CMK per workload)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;strokeWidth=2;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="845" width="160" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_mgmt" value="Management/CI Tier &#8212; runner + Workload Identity Federation pool&lt;br&gt;(project + resource-tag condition)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="915" width="500" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_hub" value="Hub: Network Connectivity Center" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="985" width="500" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="n_gcp_tel" value="Telemetry: Cloud Audit Logs, VPC Flow Logs, Security Command Center" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#34a853;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="1045" width="500" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Cross-cloud note -->
+        <mxCell id="n_crosscloud_note" value="No direct AWS &#8596; Azure &#8596; GCP network path by default &#8212; cross-cloud traffic (e.g. the shared logging destination below) only via explicitly-provisioned, individually-reviewed interconnects" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;dashed=1;fontSize=10;fontStyle=2;align=center;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1300" width="1720" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Centralised Observability & Detection Boundary -->
+        <mxCell id="b_obs" value="Centralised Observability &amp; Detection Boundary" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fillColor=none;strokeColor=#666666;fontSize=14;fontStyle=1;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1360" width="1720" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="n_siem" value="SIEM / Log Analytics&lt;br&gt;one destination per data-residency jurisdiction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1410" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_cspm" value="CSPM &#8212; continuous live posture check&lt;br&gt;(same ruleset as pipeline OPA policy)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="480" y="1410" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_corr" value="Correlation &amp; Tiered Alerting&lt;br&gt;(by workload-criticality tag)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="910" y="1410" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_obs_note" value="Pipeline scan results + SBOM diffs also land here, tagged source: pipeline" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=none;fontSize=10;fontStyle=2;fontColor=#666666;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="1410" width="380" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Edges: developer / pipeline chain -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_dev" target="n_git">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="git push" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_git" target="n_g1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g1" target="n_g2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g2" target="n_g3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g3" target="n_g4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g4" target="n_g5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g5" target="n_g6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" value="request federated token (per job, sub-claim scoped)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g6" target="n_idp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edges: federation to each cloud -->
+        <mxCell id="e9" value="short-lived STS token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_idp" target="n_aws_mgmt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="short-lived Entra token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_idp" target="n_az_mgmt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="short-lived access token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_idp" target="n_gcp_mgmt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_jit_idp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=none;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_jit" target="n_idp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="activation pages governance owner immediately" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_bg" target="n_gov">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edges: internet to edge tiers -->
+        <mxCell id="e13" value="only Edge tier reachable" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_internet" target="n_aws_edge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="only Edge tier reachable" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_internet" target="n_az_edge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="only Edge tier reachable" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_internet" target="n_gcp_edge">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- AWS internal flows -->
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_aws_edge" target="n_aws_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e17" value="DB port only, by tag reference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_aws_app" target="n_aws_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" value="envelope encryption" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_aws_data" target="n_aws_kms">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e19" value="terraform apply &#8212; tag-scoped" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_aws_mgmt" target="n_aws_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e20" value="terraform apply &#8212; tag-scoped" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_aws_mgmt" target="n_aws_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Azure internal flows -->
+        <mxCell id="e21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_az_edge" target="n_az_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e22" value="DB port only, by tag reference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_az_app" target="n_az_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" value="envelope encryption" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_az_data" target="n_az_kv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e24" value="terraform apply &#8212; tag-scoped" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_az_mgmt" target="n_az_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e25" value="terraform apply &#8212; tag-scoped" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_az_mgmt" target="n_az_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- GCP internal flows -->
+        <mxCell id="e26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_gcp_edge" target="n_gcp_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e27" value="DB port only, by tag reference" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_gcp_app" target="n_gcp_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e28" value="envelope encryption" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_gcp_data" target="n_gcp_kms">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e29" value="terraform apply &#8212; tag-scoped" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_gcp_mgmt" target="n_gcp_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e30" value="terraform apply &#8212; tag-scoped" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_gcp_mgmt" target="n_gcp_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Telemetry to SIEM -->
+        <mxCell id="e31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_aws_tel" target="n_siem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e32" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_az_tel" target="n_siem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_gcp_tel" target="n_siem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Pipeline to observability -->
+        <mxCell id="e34" value="same OPA ruleset also drives CSPM checks" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_g4" target="n_cspm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e34b" value="SBOM + scan results, tagged source: pipeline" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_g3" target="n_siem">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CSPM continuous drift detection -->
+        <mxCell id="e35" value="continuous live drift detection" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_cspm" target="b_aws">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_cspm" target="b_azure">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e37" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#999999;dashed=1;" edge="1" parent="1" source="n_cspm" target="b_gcp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Correlation and alerting -->
+        <mxCell id="e38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_siem" target="n_corr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_cspm" target="n_corr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e40" value="Tier-A pages within minutes; Tier C &#8594; ticket" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;fontSize=10;endArrow=block;strokeColor=#333333;" edge="1" parent="1" source="n_corr" target="n_gov">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -76,7 +76,7 @@ its place**:
 | [07-remediation/](07-remediation/) | 7, 8 — Remediation advisory + compensating controls | Complete |
 | [08-threat-model/](08-threat-model/) | 9 — STRIDE threat model | Complete |
 | [09-compliance/](09-compliance/) | 10 — Compliance mapping | Complete |
-| [10-architecture/](10-architecture/) | 11, 12 — HLD/LLD diagrams + narrative | **Pending** — diagrams to follow separately |
+| [10-architecture/](10-architecture/) | 11, 12 — HLD/LLD diagrams + narrative | Complete — [hld-diagram.drawio](10-architecture/hld-diagram.drawio), [lld-diagram.drawio](10-architecture/lld-diagram.drawio), [architecture-narrative.md](10-architecture/architecture-narrative.md) |
 | [11-resilience-dr/](11-resilience-dr/) | 13 — Resilience & DR | Complete |
 | [12-presentation/](12-presentation/) | Final presentation deck | **Pending** — to follow separately |
 
